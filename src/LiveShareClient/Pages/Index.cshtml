@@ -1,0 +1,27 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<input id="userNameText" type="text" placeholder="Username..." />
+<ul id="connectedUsers">
+
+</ul>
+<br/>
+<button id="requestGroupButton">Create Hub Group...</button>
+
+<br />
+<input id="groupIdText" type="text" value="" />
+<button id="joinGroupButton">Join Group</button>
+<button id="leaveGroupButton" style="display:none">Leave Group</button>
+
+<br/>
+<br/>
+<textarea id="jsonMessage" rows="5"></textarea>
+<button id="emitButton">Emit Json</button>
+<br/>
+<br/>
+<div id="receivedMessages">
+
+</div>
