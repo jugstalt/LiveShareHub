@@ -30,10 +30,10 @@ namespace LiveShareHub.Hubs
 
         async public Task RequestJoinGroup(string groupId, string clientId)
         {
-            await Clients.OthersInGroup(groupId).SendAsync("ClientRequestsJoinGroup", groupId, Context.ConnectionId, clientId);
+            await Clients.OthersInGroup(groupId).SendAsync("ClientRequestsGroupPassword", groupId, Context.ConnectionId, clientId);
         }
 
-        async public Task SendClientGroupPassword(string groupId, string connectionId, string ownerPassword, string clientPassword)
+        async public Task SendGroupClientPassword(string groupId, string connectionId, string ownerPassword, string clientPassword)
         {
             if (_groupIdProvider.VerifyGroupOwnerPassword(groupId, ownerPassword))
             {

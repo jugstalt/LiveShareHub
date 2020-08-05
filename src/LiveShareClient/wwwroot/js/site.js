@@ -39,7 +39,7 @@ livesharehub.initHubClient(
         onDeniedGroup: function (result) {
 
         },
-        onConfirmJoinGroup(result, onAllow, onDeny) {
+        onConfirmJoinGroup: function(result, onAllow, onDeny) {
             if (confirm("Client " + result.cliendId + " zutritt erteilen?")) {
                 onAllow();
             } else {
