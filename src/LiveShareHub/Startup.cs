@@ -16,6 +16,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using LiveShareHub.Core.Extensions.DependencyInjection;
 using LiveShareHub.Core.Services;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
+using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
 
 namespace LiveShareHub
 {
@@ -35,9 +38,17 @@ namespace LiveShareHub
             services.AddControllers();
             services.AddSignalR();
 
+            services.AddDistributedMemoryCache();
+            services.AddDataProtection()
+                   .UseCryptographicAlgorithms(new AuthenticatedEncryptorConfiguration()
+                   {
+                       EncryptionAlgorithm = EncryptionAlgorithm.AES_256_GCM,
+                       ValidationAlgorithm = ValidationAlgorithm.HMACSHA512
+                   });
+
             services.AddGroupProviderService<DefaultGroupProvider, DefaultGroupProviderOptions>(config =>
             {
-                config.EncryptionPassword = String.Empty;
+                config.EncryptionPassword = Configuration["Crypto:KeyPassword"];
             });
 
             #region FluffySpoon Letsencrypt

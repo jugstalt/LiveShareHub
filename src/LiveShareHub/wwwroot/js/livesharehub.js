@@ -65,7 +65,7 @@
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
             if (this.readyState == 4 && this.status == 200) {
-                _groups.push(JSON.parse(this.responseText));
+                livesharehub.addGroup(JSON.parse(this.responseText));
 
                 callback();
             }

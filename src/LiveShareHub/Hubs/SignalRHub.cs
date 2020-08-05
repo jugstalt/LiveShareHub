@@ -19,7 +19,8 @@ namespace LiveShareHub.Hubs
 
         async public Task JoinGroup(string groupId, string clientId, string clientPassword)
         {
-            if (_groupIdProvider.VerifyGroupClientPassword(groupId, clientPassword))
+            if (_groupIdProvider.VerifyGroupId(groupId) &&
+                _groupIdProvider.VerifyGroupClientPassword(groupId, clientPassword))
             {
                 await Groups.AddToGroupAsync(Context.ConnectionId, groupId);
                 await Clients.OthersInGroup(groupId).SendAsync("ClientJoinedGroup", groupId, Context.ConnectionId, clientId);

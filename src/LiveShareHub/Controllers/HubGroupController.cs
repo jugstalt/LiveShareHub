@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.Xml;
 using System.Threading.Tasks;
 
 namespace LiveShareHub.Controllers
@@ -24,16 +25,40 @@ namespace LiveShareHub.Controllers
         }
 
         [HttpGet]
-        public LiveShareGroup Get()
+        async public Task<LiveShareGroup> Get(bool simplify = false)
         {
-            var groupId = _groupIdProvider.GenerateGroupId();
-
-            return new LiveShareGroup()
+            try
             {
-                groupId = groupId,
-                groupOwnerPassword = _groupIdProvider.GenerateGroupOwnerPassword(groupId),
-                groupClientPassword = _groupIdProvider.GenerateGroupClientPassword(groupId)
-            };
+                var groupId = _groupIdProvider.GenerateGroupId();
+
+                return new LiveShareGroup()
+                {
+                    groupId = groupId,
+                    groupOwnerPassword = _groupIdProvider.GenerateGroupOwnerPassword(groupId),
+                    groupClientPassword = _groupIdProvider.GenerateGroupClientPassword(groupId),
+                    simpleGroupId = simplify ? await _groupIdProvider.SimplyGroupId(groupId) : null
+                };
+            }
+            catch (Exception ex)
+            {
+                return new LiveShareGroup(ex);
+            }
+        }
+
+        [HttpGet("{id}")]
+        async public Task<LiveShareGroup> GetUnsimplify(string id)
+        {
+            try
+            {
+                return new LiveShareGroup()
+                {
+                    groupId = await _groupIdProvider.UnsimplyGroupId(id)
+                };
+            }
+            catch (Exception ex)
+            {
+                return new LiveShareGroup(ex);
+            }
         }
     }
 }
