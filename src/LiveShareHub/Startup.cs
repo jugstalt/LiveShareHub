@@ -39,12 +39,6 @@ namespace LiveShareHub
             services.AddSignalR();
 
             services.AddDistributedMemoryCache();
-            services.AddDataProtection()
-                   .UseCryptographicAlgorithms(new AuthenticatedEncryptorConfiguration()
-                   {
-                       EncryptionAlgorithm = EncryptionAlgorithm.AES_256_GCM,
-                       ValidationAlgorithm = ValidationAlgorithm.HMACSHA512
-                   });
 
             services.AddGroupProviderService<DefaultGroupProvider, DefaultGroupProviderOptions>(config =>
             {

@@ -55,6 +55,15 @@ namespace LiveShareHub.Hubs
             await Clients.OthersInGroup(groupId).SendAsync("ClientLeftGroup", groupId, Context.ConnectionId, clientId);
         }
 
+        async public Task RemoveClient(string groupId, string connectionId, string clientId, string ownerPassword)
+        {
+            if (_groupIdProvider.VerifyGroupOwnerPassword(groupId, ownerPassword))
+            {
+                await Clients.Groups(groupId).SendAsync("ClientLeftGroup", groupId, connectionId, clientId);
+                await Groups.RemoveFromGroupAsync(connectionId, groupId);
+            }
+        }
+
         async public Task SendClientInfo(string groupId, string clientId, bool isOwner = false, string toConnectionId = "")
         {
             if (!String.IsNullOrEmpty(toConnectionId))

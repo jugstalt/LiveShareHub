@@ -16,10 +16,19 @@ livesharehub.initHubClient(
         },
         onClientJoinedGroup: function (result) {
             console.log('onClientJoinedGroup', result);
-            $("<li>")
+            var $li = $("<li>")
                 .addClass(result.connectionId)
                 .text(result.clientId)
                 .appendTo($("#connectedUsers"));
+
+            if (livesharehub.isOwner(result.groupId) === true) {
+                $("<button>Remove</button>")
+                    .data('client', result)
+                    .appendTo($li)
+                    .click(function () {
+                        livesharehub.removeClient($(this).data('client'));
+                    });
+            }
         },
         onClientLeftGroup: function (result) {
             $("li." + result.connectionId).remove();
@@ -35,6 +44,11 @@ livesharehub.initHubClient(
             $("#groupIdText").val(livesharehub.getGroupId());
             $("#joinGroupButton").css('display', 'none');
             $("#leaveGroupButton").css('display', 'block');
+        },
+        onLeftGroup: function (result) {
+            $("#joinGroupButton").css('display', 'block');
+            $("#leaveGroupButton").css('display', 'none');
+            $("#groupIdText").val("");
         },
         onDeniedGroup: function (result) {
 
@@ -84,11 +98,7 @@ $("#joinGroupButton").click(function (event) {
 $("#leaveGroupButton").click(function (event) {
 
     if (livesharehub.getGroupId()) {
-        livesharehub.leave(livesharehub.getGroupId(), $("#userNameText").val(), function () {
-            $("#joinGroupButton").css('display', 'block');
-            $("#leaveGroupButton").css('display', 'none');
-            $("#groupIdText").val("");
-        });
+        livesharehub.leave(livesharehub.getGroupId(), $("#userNameText").val());
     }
 });
 

@@ -52,7 +52,8 @@ namespace LiveShareHub.Controllers
             {
                 return new LiveShareGroup()
                 {
-                    groupId = await _groupIdProvider.UnsimplyGroupId(id)
+                    groupId = await _groupIdProvider.UnsimplyGroupId(id),
+                    simpleGroupId = id
                 };
             }
             catch (Exception ex)

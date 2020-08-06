@@ -250,13 +250,26 @@
 
                     _clients = clients;
 
-                    if (onLeft) {
-                        onLeft();
-                    }
+                    if (_options.onLeftGroup)
+                        _options.onLeftGroup();
                 })
                 .catch(function (err) {
                     return console.error(err.toString());
                 });
+        }
+    };
+
+    this.removeClient = function (client) {
+        if (_connection) {
+            var group = _getGroup(client.groupId);
+            if (group && group.groupOwnerPassword) {
+                _connection.invoke("RemoveClient", client.groupId, client.connectionId, client.clientId, group.groupOwnerPassword)
+                    .then(function () {
+                    })
+                    .catch(function (err) {
+                        return console.error(err.toString());
+                    });
+            }
         }
     };
 };
