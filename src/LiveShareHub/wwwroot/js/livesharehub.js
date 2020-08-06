@@ -266,13 +266,18 @@
 
     this.leave = function (groupId, clientId, onLeft) {
         if (_connection) {
-            _connection.invoke("LeaveGroup", groupId, clientId)
-                .then(function () {
-                    _leftGroup(groupId);
-                })
-                .catch(function (err) {
-                    return console.error(err.toString());
-                });
+            var group = _getGroup(client.groupId);
+            if (group && group.groupOwnerPassword) {
+                this.removeClient(groupId);
+            } else {
+                _connection.invoke("LeaveGroup", groupId, clientId)
+                    .then(function () {
+                        _leftGroup(groupId);
+                    })
+                    .catch(function (err) {
+                        return console.error(err.toString());
+                    });
+            }
         }
     };
 
