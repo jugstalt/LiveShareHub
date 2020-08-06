@@ -18,7 +18,8 @@
         onReceiveClientInfo: "ReceiveClientInfo",
         onClientRequestsGroupPassword: "ClientRequestsGroupPassword",
         onReceiveGroupClientPassword: "ReceiveGroupClientPassword",
-        onJoinGroupDenied: "JoinGroupDenied"
+        onJoinGroupDenied: "JoinGroupDenied",
+        onRemoveGroup: "RemoveGroup"
     };
 
     var _currentGroupIndex = -1;
@@ -89,6 +90,8 @@
         _connection = connection;
         _options = options;
 
+        console.log(_connection);
+
         if (options.onReceiveMessage) {
             _connection.on(_const.onReceiveMessage, function (groupId, connectionId, message) {
                 options.onReceiveMessage({
@@ -135,6 +138,10 @@
                     options.onClientLeftGroup(client);
 
                     _clients[_clientKey(groupId, connectionId, clientId)] = null;
+                }
+
+                if (_connection.connectionId === connectionId) {  // removed
+                    _leftGroup(groupId);
                 }
             });
         }
@@ -184,6 +191,13 @@
                 //    });
             });
         });
+
+        _connection.on(_const.onRemoveGroup, function (groupId) {
+            _leftGroup(groupId);
+
+            if (options.onGroupRemoved)
+                options.onGroupRemoved(groupId);
+        });
     };
 
     this.emitMessage = function (message, onEmited) {
@@ -225,33 +239,36 @@
         }
     };
 
+    var _leftGroup = function (groupId) {
+        var groups = [];
+        _currentGroupIndex = -1;
+
+        for (var i in _groups) {
+            if (_groups[i].groupId !== groupId) {
+                groups.push(_goups[i]);
+            }
+        }
+        _groups = groups;
+
+        var clients = [];
+
+        for (var c in _clients) {
+            if (c.indexOf(groupId + ":") != null) {
+                clients.push(_clients[c]);
+            }
+        }
+
+        _clients = clients;
+
+        if (_options.onLeftGroup)
+            _options.onLeftGroup();
+    };
+
     this.leave = function (groupId, clientId, onLeft) {
         if (_connection) {
             _connection.invoke("LeaveGroup", groupId, clientId)
                 .then(function () {
-
-                    var groups = [];
-                    _currentGroupIndex = -1;
-
-                    for (var i in _groups) {
-                        if (_groups[i].groupId !== groupId) {
-                            groups.push(_goups[i]);
-                        }
-                    }
-                    _groups = groups;
-
-                    var clients = [];
-
-                    for (var c in _clients) {
-                        if (c.indexOf(groupId + ":") != null) {
-                            clients.push(_clients[c]);
-                        }
-                    }
-
-                    _clients = clients;
-
-                    if (_options.onLeftGroup)
-                        _options.onLeftGroup();
+                    _leftGroup(groupId);
                 })
                 .catch(function (err) {
                     return console.error(err.toString());
@@ -264,6 +281,20 @@
             var group = _getGroup(client.groupId);
             if (group && group.groupOwnerPassword) {
                 _connection.invoke("RemoveClient", client.groupId, client.connectionId, client.clientId, group.groupOwnerPassword)
+                    .then(function () {
+                    })
+                    .catch(function (err) {
+                        return console.error(err.toString());
+                    });
+            }
+        }
+    };
+
+    this.removeGroup = function (groupId) {
+        if (_connection) {
+            var group = _getGroup(client.groupId);
+            if (group && group.groupOwnerPassword) {
+                _connection.invoke("RemoveGroup", client.groupId, group.groupOwnerPassword)
                     .then(function () {
                     })
                     .catch(function (err) {

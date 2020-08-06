@@ -64,6 +64,14 @@ namespace LiveShareHub.Hubs
             }
         }
 
+        async public Task RemoveGroup(string groupId, string ownerPassword)
+        {
+            if (_groupIdProvider.VerifyGroupOwnerPassword(groupId, ownerPassword))
+            {
+                await Clients.Groups(groupId).SendAsync("RemoveGroup", groupId);
+            }
+        }
+
         async public Task SendClientInfo(string groupId, string clientId, bool isOwner = false, string toConnectionId = "")
         {
             if (!String.IsNullOrEmpty(toConnectionId))
