@@ -22,6 +22,7 @@
         onRemoveGroup: "RemoveGroup"
     };
 
+    var _maxMessageSize = 30 * 1024;  // 30kb
     var _currentGroupIndex = -1;
     var _groups = [];
     var _clients = [];
@@ -90,7 +91,7 @@
         _connection = connection;
         _options = options;
 
-        console.log(_connection);
+        //console.log(_connection);
 
         if (options.onReceiveMessage) {
             _connection.on(_const.onReceiveMessage, function (groupId, connectionId, message) {
@@ -116,11 +117,11 @@
                         options.clientId :
                         options.clientId();
 
-                    console.log('my-clientid', currentClientId);
+                    //console.log('my-clientid', currentClientId);
 
                     _connection.invoke("SendClientInfo", groupId, currentClientId, false, connectionId)
                         .then(function () {
-                            console.log("sdkfjasölfaslöf");
+
                         })
                         .catch(function (err) {
                             return console.error(err.toString());
@@ -193,23 +194,29 @@
         });
 
         _connection.on(_const.onRemoveGroup, function (groupId) {
+            var isOwner = livesharehub.isOwner(groupId);
             _leftGroup(groupId);
 
             if (options.onGroupRemoved)
-                options.onGroupRemoved(groupId);
+                options.onGroupRemoved(groupId, isOwner);
         });
     };
 
     this.emitMessage = function (message, onEmited) {
-        if (_connection) {
+        if (_connection && message && _currentGroupIndex >= 0) {
+            if (message.length > _maxMessageSize) {
+                _handeError({ errorMessage: 'Maxium message length exceeded', message: message });
+                return;
+            };
             _connection.invoke("EmitMessage", this.getGroupId(), message)
                 .then(function () {
+                    //console.log('message emitied', livesharehub.getGroupId(), message);
                     if (onEmited) {
                         onEmited(message);
                     }
                 })
                 .catch(function (err) {
-                    return console.error(err.toString());
+                    _handeError({ errorMessage: err.toString(), message: message });
                 });
         }
     };
@@ -230,11 +237,12 @@
             _connection.invoke("JoinGroup", groupId, clientId, clientPassword)
                 .then(function () {
                     _setGroupId(groupId);
+                    console.log('jointed to', groupId);
                     if (_options.onJoinedGroup)
                         _options.onJoinedGroup({ groupId: groupId });
                 })
                 .catch(function (err) {
-                    return console.error(err.toString());
+                    _handeError({ errorMessage: err.toString() });
                 });
         }
     };
@@ -244,8 +252,8 @@
         _currentGroupIndex = -1;
 
         for (var i in _groups) {
-            if (_groups[i].groupId !== groupId) {
-                groups.push(_goups[i]);
+            if (_groups[i] && _groups[i].groupId !== groupId) {
+                groups.push(_groups[i]);
             }
         }
         _groups = groups;
@@ -253,7 +261,7 @@
         var clients = [];
 
         for (var c in _clients) {
-            if (c.indexOf(groupId + ":") != null) {
+            if (_clients[c] && _clients[c].groupId != groupId) {
                 clients.push(_clients[c]);
             }
         }
@@ -262,22 +270,32 @@
 
         if (_options.onLeftGroup)
             _options.onLeftGroup();
+
+        console.log('leftGroup', _groups, _clients);
     };
 
     this.leave = function (groupId, clientId, onLeft) {
         if (_connection) {
-            var group = _getGroup(client.groupId);
+            var group = _getGroup(groupId);
             if (group && group.groupOwnerPassword) {
-                this.removeClient(groupId);
+                this.removeGroup(groupId);
             } else {
                 _connection.invoke("LeaveGroup", groupId, clientId)
                     .then(function () {
                         _leftGroup(groupId);
                     })
                     .catch(function (err) {
-                        return console.error(err.toString());
+                        _handeError({ errorMessage: err.toString(), message: message });
                     });
             }
+        }
+    };
+
+    var _handeError = function (error) {
+        if (_options && _options.onError) {
+            _options.onError(error);
+        } else {
+            console.trace('livesharehub-error', error.errorMessage);
         }
     };
 
@@ -289,7 +307,7 @@
                     .then(function () {
                     })
                     .catch(function (err) {
-                        return console.error(err.toString());
+                        _handeError({ errorMessage: err.toString(), message: message });
                     });
             }
         }
@@ -297,13 +315,13 @@
 
     this.removeGroup = function (groupId) {
         if (_connection) {
-            var group = _getGroup(client.groupId);
+            var group = _getGroup(groupId);
             if (group && group.groupOwnerPassword) {
-                _connection.invoke("RemoveGroup", client.groupId, group.groupOwnerPassword)
+                _connection.invoke("RemoveGroup", groupId, group.groupOwnerPassword)
                     .then(function () {
                     })
                     .catch(function (err) {
-                        return console.error(err.toString());
+                        _handeError({ errorMessage: err.toString(), message: message });
                     });
             }
         }
