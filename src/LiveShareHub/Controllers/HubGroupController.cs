@@ -1,4 +1,5 @@
 ﻿using LiveShareHub.Core.Abstraction;
+using LiveShareHub.Core.Reflection;
 using LiveShareHub.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -25,6 +26,7 @@ namespace LiveShareHub.Controllers
         }
 
         [HttpGet]
+        [AuthorizeAccess(AuthorizationType.Basic)]
         async public Task<LiveShareGroup> Get(bool simplify = false)
         {
             try
@@ -46,6 +48,7 @@ namespace LiveShareHub.Controllers
         }
 
         [HttpGet("{id}")]
+        [AuthorizeAccess(AuthorizationType.Basic)]
         async public Task<LiveShareGroup> GetUnsimplify(string id)
         {
             try

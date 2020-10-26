@@ -19,6 +19,8 @@ using LiveShareHub.Core.Services;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
+using LiveShareHub.Services;
+using LiveShareHub.Middleware;
 
 namespace LiveShareHub
 {
@@ -39,6 +41,11 @@ namespace LiveShareHub
             services.AddSignalR();
 
             services.AddDistributedMemoryCache();
+
+            //services.AddTransient<IActionContextAccessor, ActionContextAccessor>();
+            services.AddHttpContextAccessor();
+            services.AddScoped<RoutingEndPointReflectionService>();  // Scoped => one Instance per Http Request!!
+
 
             services.AddGroupProviderService<DefaultGroupProvider, DefaultGroupProviderOptions>(config =>
             {
@@ -99,7 +106,8 @@ namespace LiveShareHub
                 .SetIsOriginAllowed(origin => true) // allow any origin
                 .AllowCredentials()); // allow credentials
 
-            app.UseAuthorization();
+            //app.UseAuthorization();
+            app.UseMiddleware<AuthorizeAccessMiddleware>();
 
             app.UseEndpoints(endpoints =>
             {

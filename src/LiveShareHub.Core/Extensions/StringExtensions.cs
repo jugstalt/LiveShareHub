@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
+using System.Transactions;
 
 namespace LiveShareHub.Core.Extensions
 {
@@ -23,6 +25,23 @@ namespace LiveShareHub.Core.Extensions
             }
 
             return sb.ToString();
+        }
+
+        static public (string username, string password) BasicAuthUsernamePassword(this string authValue)
+        {
+            if(authValue.StartsWith("Basic ", System.StringComparison.InvariantCultureIgnoreCase))
+            {
+                authValue = authValue.Substring("Basic ".Length);
+            }
+
+            authValue = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(authValue));
+
+            if(!authValue.Contains(":"))
+            {
+                throw new Exception("Invalid authorization value");
+            }
+
+            return (authValue.Substring(0, authValue.IndexOf(":")), authValue.Substring(authValue.IndexOf(":") + 1));
         }
     }
 }
