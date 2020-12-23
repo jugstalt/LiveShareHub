@@ -205,7 +205,7 @@
     this.emitMessage = function (message, onEmited) {
         if (_connection && message && _currentGroupIndex >= 0) {
             if (message.length > _maxMessageSize) {
-                _handeError({ errorMessage: 'Maxium message length exceeded', message: message });
+                _handleError({ errorMessage: 'Maxium message length exceeded', message: message });
                 return;
             };
             _connection.invoke("EmitMessage", this.getGroupId(), message)
@@ -216,7 +216,7 @@
                     }
                 })
                 .catch(function (err) {
-                    _handeError({ errorMessage: err.toString(), message: message });
+                    _handleError({ errorMessage: err.toString(), message: message });
                 });
         }
     };
@@ -239,10 +239,14 @@
                     _setGroupId(groupId);
                     console.log('jointed to', groupId);
                     if (_options.onJoinedGroup)
-                        _options.onJoinedGroup({ groupId: groupId });
+                        _options.onJoinedGroup({
+                            groupId: groupId,
+                            connectionId: _connection.connectionId,
+                            clientId: clientId
+                        });
                 })
                 .catch(function (err) {
-                    _handeError({ errorMessage: err.toString() });
+                    _handleError({ errorMessage: err.toString() });
                 });
         }
     };
@@ -285,13 +289,13 @@
                         _leftGroup(groupId);
                     })
                     .catch(function (err) {
-                        _handeError({ errorMessage: err.toString(), message: message });
+                        _handleError({ errorMessage: err.toString(), message: message });
                     });
             }
         }
     };
 
-    var _handeError = function (error) {
+    var _handleError = function (error) {
         if (_options && _options.onError) {
             _options.onError(error);
         } else {
@@ -307,7 +311,7 @@
                     .then(function () {
                     })
                     .catch(function (err) {
-                        _handeError({ errorMessage: err.toString(), message: message });
+                        _handleError({ errorMessage: err.toString(), message: message });
                     });
             }
         }
@@ -321,7 +325,7 @@
                     .then(function () {
                     })
                     .catch(function (err) {
-                        _handeError({ errorMessage: err.toString(), message: message });
+                        _handleError({ errorMessage: err.toString(), message: message });
                     });
             }
         }

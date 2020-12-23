@@ -25,47 +25,50 @@ namespace LiveShareHub.Middleware
                                  RoutingEndPointReflectionService endpointReflection,
                                  IConfiguration config)
         {
-            var clients = config.GetSection("Clients");
-
-            if (clients.GetChildren().Count() > 0)
+            if (endpointReflection != null && endpointReflection.Apply)
             {
-                var authAccessAttribute = endpointReflection.GetCustomAttribute<AuthorizeAccessAttribute>();
+                var clients = config.GetSection("Clients");
 
-                if (authAccessAttribute != null)
+                if (clients.GetChildren().Count() > 0)
                 {
-                    bool grantAccess = false;
-                    if (authAccessAttribute.AuthorizationType.HasFlag(AuthorizationType.Basic))
+                    var authAccessAttribute = endpointReflection.GetCustomAttribute<AuthorizeAccessAttribute>();
+
+                    if (authAccessAttribute != null)
                     {
-                        string authHeaderValue = context.Request.Headers["Authorization"];
-
-                        if (authHeaderValue != null &&
-                            authHeaderValue.StartsWith("Basic ", StringComparison.InvariantCultureIgnoreCase))
+                        bool grantAccess = false;
+                        if (authAccessAttribute.AuthorizationType.HasFlag(AuthorizationType.Basic))
                         {
-                            var usernamePassword = authHeaderValue.BasicAuthUsernamePassword();
+                            string authHeaderValue = context.Request.Headers["Authorization"];
 
-                            var client = clients
-                                .GetChildren()
-                                .Where(c => "basic".Equals(c["type"], StringComparison.InvariantCultureIgnoreCase) &&
-                                            c["name"] == usernamePassword.username)
-                                .FirstOrDefault();
-
-                            if (client != null && client["password"] == usernamePassword.password)
+                            if (authHeaderValue != null &&
+                                authHeaderValue.StartsWith("Basic ", StringComparison.InvariantCultureIgnoreCase))
                             {
-                                grantAccess = true;
+                                var usernamePassword = authHeaderValue.BasicAuthUsernamePassword();
+
+                                var client = clients
+                                    .GetChildren()
+                                    .Where(c => "basic".Equals(c["type"], StringComparison.InvariantCultureIgnoreCase) &&
+                                                c["name"] == usernamePassword.username)
+                                    .FirstOrDefault();
+
+                                if (client != null && client["password"] == usernamePassword.password)
+                                {
+                                    grantAccess = true;
+                                }
                             }
                         }
-                    }
-                    if (!grantAccess)
-                    {
-                        if (clients
-                            .GetChildren()
-                            .Where(c => "basic".Equals(c["type"], StringComparison.InvariantCultureIgnoreCase))
-                            .Count() > 0)
+                        if (!grantAccess)
                         {
-                            context.Response.Headers["WWW-Authenticate"] = "Basic realm=\"RealmName\"";
+                            if (clients
+                                .GetChildren()
+                                .Where(c => "basic".Equals(c["type"], StringComparison.InvariantCultureIgnoreCase))
+                                .Count() > 0)
+                            {
+                                context.Response.Headers["WWW-Authenticate"] = "Basic realm=\"RealmName\"";
+                            }
+                            context.Response.StatusCode = 401;
+                            return;
                         }
-                        context.Response.StatusCode = 401;
-                        return;
                     }
                 }
             }

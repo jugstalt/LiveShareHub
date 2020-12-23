@@ -12,6 +12,7 @@ namespace LiveShareHub.Services
     {
         private readonly IEnumerable<Attribute> _controllerAttributes;
         private readonly IEnumerable<Attribute> _actionMethodAttributes;
+        private readonly bool _apply = false;
 
         public RoutingEndPointReflectionService(IHttpContextAccessor context)
         {
@@ -21,8 +22,11 @@ namespace LiveShareHub.Services
             {
                 _controllerAttributes = controllerActionDescriptor.ControllerTypeInfo?.GetCustomAttributes();
                 _actionMethodAttributes = controllerActionDescriptor.MethodInfo?.GetCustomAttributes();
+                _apply = true;
             }
         }
+
+        public bool Apply => _apply;
 
         public T GetCustomAttribute<T>()
             where T : Attribute
