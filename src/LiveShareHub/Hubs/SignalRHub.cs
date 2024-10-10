@@ -1,9 +1,6 @@
 ﻿using LiveShareHub.Core.Abstraction;
 using Microsoft.AspNetCore.SignalR;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace LiveShareHub.Hubs
@@ -12,7 +9,7 @@ namespace LiveShareHub.Hubs
     {
         private readonly IGroupIdProvider _groupIdProvider;
 
-        public SignalRHub(IGroupIdProvider groupIdProvider) 
+        public SignalRHub(IGroupIdProvider groupIdProvider)
         {
             _groupIdProvider = groupIdProvider;
         }
@@ -50,7 +47,7 @@ namespace LiveShareHub.Hubs
         #endregion
 
         async public Task LeaveGroup(string groupId, string clientId)
-        { 
+        {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupId);
             await Clients.OthersInGroup(groupId).SendAsync("ClientLeftGroup", groupId, Context.ConnectionId, clientId);
         }

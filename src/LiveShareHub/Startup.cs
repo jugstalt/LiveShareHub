@@ -64,8 +64,12 @@ namespace LiveShareHub
                     }
                 });
 
-                if (String.IsNullOrEmpty(Configuration["Letsencrypt:PersistancePath"]))
+                if (!String.IsNullOrEmpty(Configuration["Letsencrypt:PersistancePath"]))
                 {
+                    System.IO.Directory.CreateDirectory(System.IO.Path.Combine(Configuration["Letsencrypt:PersistancePath"], "certs"));
+                    System.IO.Directory.CreateDirectory(System.IO.Path.Combine(Configuration["Letsencrypt:PersistancePath"], "certs_Account"));
+                    System.IO.Directory.CreateDirectory(System.IO.Path.Combine(Configuration["Letsencrypt:PersistancePath"], "challenge"));
+
                     //the following line tells the library to persist the certificate to a file, so that if the server restarts, the certificate can be re-used without generating a new one.
                     services.AddFluffySpoonLetsEncryptFileCertificatePersistence(System.IO.Path.Combine(Configuration["Letsencrypt:PersistancePath"], "certs"));
                     services.AddFluffySpoonLetsEncryptFileChallengePersistence(System.IO.Path.Combine(Configuration["Letsencrypt:PersistancePath"], "challenge"));
