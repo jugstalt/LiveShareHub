@@ -1,14 +1,11 @@
-﻿using LiveShareHub.Core.Reflection;
+﻿using LiveShareHub.Core.Extensions;
+using LiveShareHub.Core.Reflection;
 using LiveShareHub.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using LiveShareHub.Core.Extensions;
-using Org.BouncyCastle.Asn1.X509;
-using System.Net.Mime;
 
 namespace LiveShareHub.Middleware
 {
