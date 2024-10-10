@@ -1,26 +1,17 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Certes;
-using FluffySpoon.AspNet.LetsEncrypt;
-using FluffySpoon.AspNet.LetsEncrypt.Certes;
+using FluffySpoon.AspNet.EncryptWeMust;
+using FluffySpoon.AspNet.EncryptWeMust.Certes;
+using LiveShareHub.Core.Extensions.DependencyInjection;
+using LiveShareHub.Core.Services;
 using LiveShareHub.Hubs;
+using LiveShareHub.Middleware;
+using LiveShareHub.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using LiveShareHub.Core.Extensions.DependencyInjection;
-using LiveShareHub.Core.Services;
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
-using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
-using LiveShareHub.Services;
-using LiveShareHub.Middleware;
+using System;
 
 namespace LiveShareHub
 {
