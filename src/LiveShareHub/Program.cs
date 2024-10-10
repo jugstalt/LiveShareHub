@@ -24,7 +24,7 @@ namespace LiveShareHub
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                    webBuilder.UseUrls(new string[] { "http://*", "https://*" });
+                    webBuilder.UseUrls(new string[] { "http://*:8080", "https://*:8443" });
                 });
 
             return builder;

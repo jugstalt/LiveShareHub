@@ -73,11 +73,17 @@ namespace LiveShareHub
                     }
                 });
 
-                //the following line tells the library to persist the certificate to a file, so that if the server restarts, the certificate can be re-used without generating a new one.
-                services.AddFluffySpoonLetsEncryptFileCertificatePersistence();
-
-                //the following line tells the library to persist challenges in-memory. challenges are the "/.well-known" URL codes that LetsEncrypt will call.
-                services.AddFluffySpoonLetsEncryptMemoryChallengePersistence();
+                if (String.IsNullOrEmpty(Configuration["Letsencrypt:PersistancePath"]))
+                {
+                    //the following line tells the library to persist the certificate to a file, so that if the server restarts, the certificate can be re-used without generating a new one.
+                    services.AddFluffySpoonLetsEncryptFileCertificatePersistence(System.IO.Path.Combine(Configuration["Letsencrypt:PersistancePath"], "certs"));
+                    services.AddFluffySpoonLetsEncryptFileChallengePersistence(System.IO.Path.Combine(Configuration["Letsencrypt:PersistancePath"], "challenge"));
+                }
+                else
+                {
+                    //the following line tells the library to persist challenges in-memory. challenges are the "/.well-known" URL codes that LetsEncrypt will call.
+                    services.AddFluffySpoonLetsEncryptMemoryChallengePersistence();
+                }
             }
 
             #endregion
